@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Submit Quote</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #0f0e0c;
+      --paper: #f7f4ef;
+      --accent: #c84b2f;
+      --accent-light: #f2ded9;
+      --muted: #6b6660;
+      --border: #ddd9d2;
+      --success: #1a6b45;
+      --success-light: #d4eddf;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      background-color: var(--paper);
+      font-family: 'DM Sans', sans-serif;
+      color: var(--ink);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Subtle grain overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      background-repeat: repeat;
+      background-size: 200px 200px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Decorative corner marks */
+    body::after {
+      content: '';
+      position: fixed;
+      top: 2rem; left: 2rem; right: 2rem; bottom: 2rem;
+      border: 1px solid var(--border);
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.6;
+    }
+
+    .card {
+      position: relative;
+      z-index: 1;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      padding: 3rem 2.5rem;
+      width: 100%;
+      max-width: 480px;
+      box-shadow:
+        0 1px 2px rgba(0,0,0,0.04),
+        0 4px 16px rgba(0,0,0,0.06),
+        6px 6px 0 var(--border);
+    }
+
+    .eyebrow {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+    }
+
+    h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 2rem;
+      line-height: 1.1;
+      color: var(--ink);
+      margin-bottom: 0.25rem;
+    }
+
+    .subtitle {
+      font-size: 0.875rem;
+      color: var(--muted);
+      margin-bottom: 2.25rem;
+      font-weight: 300;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 2rem 0;
+    }
+
+    label {
+      display: block;
+      font-size: 0.75rem;
+      font-family: 'DM Mono', monospace;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+    }
+
+    .input-wrap {
+      position: relative;
+    }
+
+    .currency-symbol {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.25rem;
+      color: var(--muted);
+      pointer-events: none;
+    }
+
+    input[type="number"] {
+      width: 100%;
+      padding: 0.85rem 1rem 0.85rem 2.25rem;
+      border: 1.5px solid var(--border);
+      border-radius: 2px;
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.5rem;
+      color: var(--ink);
+      background: var(--paper);
+      transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+      appearance: textfield;
+      -moz-appearance: textfield;
+    }
+
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+    input[type="number"]:focus {
+      outline: none;
+      border-color: var(--ink);
+      background: #fff;
+      box-shadow: 3px 3px 0 var(--border);
+    }
+
+    .task-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: var(--paper);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      padding: 0.35rem 0.7rem;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    .task-badge span.dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      display: inline-block;
+    }
+
+    button[type="submit"] {
+      width: 100%;
+      margin-top: 1.75rem;
+      padding: 1rem;
+      background: var(--ink);
+      color: #fff;
+      border: none;
+      border-radius: 2px;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.8rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
+      box-shadow: 3px 3px 0 var(--border);
+      position: relative;
+      overflow: hidden;
+    }
+
+    button[type="submit"]:hover:not(:disabled) {
+      background: var(--accent);
+      box-shadow: 3px 3px 0 #b03828;
+    }
+
+    button[type="submit"]:active:not(:disabled) {
+      transform: translate(2px, 2px);
+      box-shadow: 1px 1px 0 var(--border);
+    }
+
+    button[type="submit"]:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    /* Shimmer on loading button */
+    button.loading::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.12) 50%, transparent 100%);
+      animation: shimmer 1.2s infinite;
+    }
+
+    @keyframes shimmer {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+
+    /* Success / Error states */
+    #success-msg {
+      display: none;
+      text-align: center;
+      padding: 2rem 1rem;
+    }
+
+    .success-icon {
+      width: 56px; height: 56px;
+      border-radius: 50%;
+      background: var(--success-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.25rem;
+      font-size: 1.5rem;
+    }
+
+    #success-msg h2 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.5rem;
+      color: var(--success);
+      margin-bottom: 0.5rem;
+    }
+
+    #success-msg p {
+      font-size: 0.875rem;
+      color: var(--muted);
+    }
+
+    #error-msg {
+      display: none;
+      margin-top: 1rem;
+      padding: 0.75rem 1rem;
+      border: 1.5px solid var(--accent);
+      background: var(--accent-light);
+      border-radius: 2px;
+      font-size: 0.8rem;
+      font-family: 'DM Mono', monospace;
+      color: var(--accent);
+    }
+
+    #invalid-msg {
+      text-align: center;
+      padding: 2rem 1rem;
+    }
+
+    #invalid-msg .icon {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+
+    #invalid-msg h2 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.5rem;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+    }
+
+    #invalid-msg p {
+      font-size: 0.875rem;
+      color: var(--muted);
+    }
+
+    /* Entry animation */
+    .card {
+      animation: cardIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+
+  <!-- Invalid link state -->
+  <div id="invalid-msg" style="display:none;">
+    <div class="icon">⚠</div>
+    <h2>Invalid Link</h2>
+    <p>This link is missing a task ID. Please use the link provided in your email.</p>
+  </div>
+
+  <!-- Main form -->
+  <div id="form-container">
+    <p class="eyebrow">Quote Submission</p>
+    <h1>Submit Your Quote</h1>
+    <p class="subtitle">Enter your price below and we'll update the task in Wrike automatically.</p>
+
+    <div class="divider"></div>
+
+    <form id="quote-form" novalidate>
+      <input type="hidden" id="task_id" name="task_id" />
+
+      <div style="margin-bottom: 1.5rem;">
+        <label for="task-display">Task Reference</label>
+        <div class="task-badge">
+          <span class="dot"></span>
+          <span id="task-display">—</span>
+        </div>
+      </div>
+
+      <div>
+        <label for="quote_price">Quote Price</label>
+        <div class="input-wrap">
+          <span class="currency-symbol">$</span>
+          <input
+            type="number"
+            id="quote_price"
+            name="quote_price"
+            min="0"
+            step="0.01"
+            placeholder="0.00"
+            required
+          />
+        </div>
+      </div>
+
+      <div id="error-msg" role="alert"></div>
+
+      <button type="submit" id="submit-btn">
+        Submit Quote
+      </button>
+    </form>
+  </div>
+
+  <!-- Success state -->
+  <div id="success-msg" role="status">
+    <div class="success-icon">✓</div>
+    <h2>Quote Sent!</h2>
+    <p>Thank you — your quote has been sent to Wrike and the task has been updated.</p>
+  </div>
+
+</div>
+
+<script>
+  // ─── Configuration ────────────────────────────────────────────────
+  const WORKATO_WEBHOOK_URL = 'https://YOUR_WORKATO_WEBHOOK_URL_HERE';
+  // ──────────────────────────────────────────────────────────────────
+
+  const params      = new URLSearchParams(window.location.search);
+  const taskId      = params.get('task_id');
+
+  const invalidMsg      = document.getElementById('invalid-msg');
+  const formContainer   = document.getElementById('form-container');
+  const taskIdField     = document.getElementById('task_id');
+  const taskDisplay     = document.getElementById('task-display');
+  const form            = document.getElementById('quote-form');
+  const submitBtn       = document.getElementById('submit-btn');
+  const errorMsg        = document.getElementById('error-msg');
+  const successMsg      = document.getElementById('success-msg');
+
+  // ─── Validate task_id on load ─────────────────────────────────────
+  if (!taskId || taskId.trim() === '') {
+    formContainer.style.display = 'none';
+    invalidMsg.style.display    = 'block';
+  } else {
+    taskIdField.value   = taskId;
+    taskDisplay.textContent = taskId;
+  }
+
+  // ─── Form submission ──────────────────────────────────────────────
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const price = parseFloat(document.getElementById('quote_price').value);
+
+    // Basic validation
+    if (isNaN(price) || price < 0) {
+      showError('Please enter a valid quote price.');
+      return;
+    }
+
+    hideError();
+    setLoading(true);
+
+    const payload = {
+      task_id:     taskId,
+      quote_price: price,
+    };
+
+    try {
+      const response = await fetch(WORKATO_WEBHOOK_URL, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Server responded with status ${response.status}`);
+      }
+
+      // Success
+      formContainer.style.display = 'none';
+      successMsg.style.display    = 'block';
+
+    } catch (err) {
+      showError('Something went wrong. Please try again or contact support.');
+      console.error('Submission error:', err);
+    } finally {
+      setLoading(false);
+    }
+  });
+
+  // ─── Helpers ──────────────────────────────────────────────────────
+  function setLoading(isLoading) {
+    submitBtn.disabled = isLoading;
+    if (isLoading) {
+      submitBtn.textContent = 'Submitting…';
+      submitBtn.classList.add('loading');
+    } else {
+      submitBtn.textContent = 'Submit Quote';
+      submitBtn.classList.remove('loading');
+    }
+  }
+
+  function showError(msg) {
+    errorMsg.textContent    = msg;
+    errorMsg.style.display  = 'block';
+  }
+
+  function hideError() {
+    errorMsg.textContent    = '';
+    errorMsg.style.display  = 'none';
+  }
+</script>
+
+</body>
+</html>
