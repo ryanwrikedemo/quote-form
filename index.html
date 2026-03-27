@@ -3,449 +3,693 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Submit Quote</title>
+  <title>Submit Quote — Wrike Manufacturing</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,300;400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --ink: #0f0e0c;
-      --paper: #f7f4ef;
-      --accent: #c84b2f;
-      --accent-light: #f2ded9;
-      --muted: #6b6660;
-      --border: #ddd9d2;
-      --success: #1a6b45;
-      --success-light: #d4eddf;
+      --blue:       #0070d2;
+      --blue-dark:  #005bb5;
+      --blue-pale:  #e8f2fd;
+      --ink:        #1a1a2e;
+      --body:       #3d3d56;
+      --muted:      #7a7a96;
+      --border:     #dde1ea;
+      --surface:    #f5f7fb;
+      --white:      #ffffff;
+      --green:      #1a7f5a;
+      --green-pale: #e0f5ed;
+      --red:        #c0392b;
+      --red-pale:   #fdecea;
+      --warn:       #b45309;
+      --warn-pale:  #fef3c7;
     }
 
-    * { box-sizing: border-box; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      background-color: var(--paper);
-      font-family: 'DM Sans', sans-serif;
-      color: var(--ink);
+      font-family: 'Outfit', sans-serif;
+      background: var(--surface);
+      color: var(--body);
       min-height: 100vh;
+      padding: 2.5rem 1rem 4rem;
+      /* Subtle dot-grid background */
+      background-image: radial-gradient(circle, #c8cfe0 1px, transparent 1px);
+      background-size: 24px 24px;
+    }
+
+    /* ── Shell ─────────────────────────────── */
+    .shell {
+      max-width: 620px;
+      margin: 0 auto;
+      animation: rise 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Header band ───────────────────────── */
+    .header-band {
+      background: var(--ink);
+      border-radius: 10px 10px 0 0;
+      padding: 1.25rem 1.75rem;
       display: flex;
       align-items: center;
-      justify-content: center;
-      padding: 2rem 1rem;
-      position: relative;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .header-band .brand {
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.5);
+    }
+
+    .quote-id-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 100px;
+      padding: 0.3rem 0.75rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      color: rgba(255,255,255,0.75);
+    }
+
+    .quote-id-chip .pulse {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: #4ade80;
+      box-shadow: 0 0 0 2px rgba(74,222,128,0.3);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 2px rgba(74,222,128,0.3); }
+      50%       { box-shadow: 0 0 0 5px rgba(74,222,128,0.1); }
+    }
+
+    /* ── Card ──────────────────────────────── */
+    .card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-top: none;
+      border-radius: 0 0 10px 10px;
       overflow: hidden;
     }
 
-    /* Subtle grain overlay */
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-      background-repeat: repeat;
-      background-size: 200px 200px;
-      pointer-events: none;
-      z-index: 0;
+    /* ── Vendor greeting ───────────────────── */
+    .greeting {
+      padding: 1.75rem 1.75rem 0;
     }
 
-    /* Decorative corner marks */
-    body::after {
-      content: '';
-      position: fixed;
-      top: 2rem; left: 2rem; right: 2rem; bottom: 2rem;
-      border: 1px solid var(--border);
-      pointer-events: none;
-      z-index: 0;
-      opacity: 0.6;
+    .greeting p {
+      font-size: 1rem;
+      color: var(--body);
+      line-height: 1.6;
     }
 
-    .card {
-      position: relative;
-      z-index: 1;
-      background: #fff;
-      border: 1px solid var(--border);
-      border-radius: 2px;
-      padding: 3rem 2.5rem;
-      width: 100%;
-      max-width: 480px;
-      box-shadow:
-        0 1px 2px rgba(0,0,0,0.04),
-        0 4px 16px rgba(0,0,0,0.06),
-        6px 6px 0 var(--border);
-    }
-
-    .eyebrow {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.65rem;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 0.5rem;
-    }
-
-    h1 {
-      font-family: 'DM Serif Display', serif;
-      font-size: 2rem;
-      line-height: 1.1;
+    .greeting strong {
       color: var(--ink);
-      margin-bottom: 0.25rem;
+      font-weight: 600;
     }
 
-    .subtitle {
-      font-size: 0.875rem;
-      color: var(--muted);
-      margin-bottom: 2.25rem;
-      font-weight: 300;
+    /* ── Vendor meta strip ─────────────────── */
+    .vendor-strip {
+      margin: 1.25rem 1.75rem 0;
+      background: var(--blue-pale);
+      border: 1px solid #c5ddf7;
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.6rem 1.5rem;
     }
 
-    .divider {
-      height: 1px;
-      background: var(--border);
-      margin: 2rem 0;
+    .meta-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
     }
 
-    label {
-      display: block;
-      font-size: 0.75rem;
-      font-family: 'DM Mono', monospace;
+    .meta-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.62rem;
       letter-spacing: 0.1em;
       text-transform: uppercase;
+      color: var(--blue);
+      font-weight: 500;
+    }
+
+    .meta-value {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--ink);
+    }
+
+    /* ── Section divider ───────────────────── */
+    .section-label {
+      margin: 1.75rem 1.75rem 0;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
       color: var(--muted);
-      margin-bottom: 0.5rem;
+    }
+
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ── Item list ─────────────────────────── */
+    .item-list {
+      margin: 0.75rem 1.75rem 0;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .item-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      padding: 0.9rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .item-row:last-child { border-bottom: none; }
+    .item-row:nth-child(even) { background: var(--surface); }
+
+    .item-row .row-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.68rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      min-width: 130px;
+      padding-top: 0.1rem;
+      flex-shrink: 0;
+    }
+
+    .item-row .row-value {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--ink);
+      line-height: 1.5;
+    }
+
+    .qty-badge {
+      display: inline-flex;
+      align-items: center;
+      background: var(--ink);
+      color: #fff;
+      border-radius: 6px;
+      padding: 0.2rem 0.65rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+
+    /* ── Form fields ───────────────────────── */
+    .form-area {
+      padding: 0 1.75rem 1.75rem;
+    }
+
+    .field-group {
+      margin-top: 1rem;
+    }
+
+    .field-label {
+      display: block;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.45rem;
     }
 
     .input-wrap {
       position: relative;
     }
 
-    .currency-symbol {
+    .currency {
       position: absolute;
-      left: 1rem;
+      left: 0.9rem;
       top: 50%;
       transform: translateY(-50%);
-      font-family: 'DM Serif Display', serif;
-      font-size: 1.25rem;
+      font-size: 1rem;
+      font-weight: 600;
       color: var(--muted);
       pointer-events: none;
     }
 
-    input[type="number"] {
+    input[type="number"],
+    input[type="date"] {
       width: 100%;
-      padding: 0.85rem 1rem 0.85rem 2.25rem;
       border: 1.5px solid var(--border);
-      border-radius: 2px;
-      font-family: 'DM Serif Display', serif;
-      font-size: 1.5rem;
+      border-radius: 8px;
+      padding: 0.8rem 1rem;
+      font-family: 'Outfit', sans-serif;
+      font-size: 1rem;
+      font-weight: 500;
       color: var(--ink);
-      background: var(--paper);
-      transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
-      appearance: textfield;
+      background: var(--white);
+      transition: border-color 0.15s, box-shadow 0.15s;
+      appearance: none;
       -moz-appearance: textfield;
     }
+
+    input[type="number"] { padding-left: 2rem; font-size: 1.15rem; }
 
     input[type="number"]::-webkit-inner-spin-button,
     input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
 
-    input[type="number"]:focus {
-      outline: none;
-      border-color: var(--ink);
-      background: #fff;
-      box-shadow: 3px 3px 0 var(--border);
+    input[type="date"]::-webkit-calendar-picker-indicator {
+      opacity: 0.5;
+      cursor: pointer;
     }
 
-    .task-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      background: var(--paper);
-      border: 1px solid var(--border);
-      border-radius: 2px;
-      padding: 0.35rem 0.7rem;
-      font-family: 'DM Mono', monospace;
+    input:focus {
+      outline: none;
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(0,112,210,0.12);
+    }
+
+    .field-hint {
+      margin-top: 0.35rem;
       font-size: 0.75rem;
       color: var(--muted);
     }
 
-    .task-badge span.dot {
-      width: 6px; height: 6px;
-      border-radius: 50%;
-      background: var(--accent);
-      display: inline-block;
+    .fields-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
     }
 
-    button[type="submit"] {
+    /* ── Submit button ──────────────────────── */
+    .submit-btn {
       width: 100%;
-      margin-top: 1.75rem;
-      padding: 1rem;
-      background: var(--ink);
+      margin-top: 1.5rem;
+      padding: 0.95rem;
+      background: var(--blue);
       color: #fff;
       border: none;
-      border-radius: 2px;
-      font-family: 'DM Mono', monospace;
-      font-size: 0.8rem;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
+      border-radius: 8px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 600;
       cursor: pointer;
       transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
-      box-shadow: 3px 3px 0 var(--border);
+      box-shadow: 0 2px 8px rgba(0,112,210,0.25);
       position: relative;
       overflow: hidden;
+      letter-spacing: 0.01em;
     }
 
-    button[type="submit"]:hover:not(:disabled) {
-      background: var(--accent);
-      box-shadow: 3px 3px 0 #b03828;
+    .submit-btn:hover:not(:disabled) {
+      background: var(--blue-dark);
+      box-shadow: 0 4px 14px rgba(0,112,210,0.35);
     }
 
-    button[type="submit"]:active:not(:disabled) {
-      transform: translate(2px, 2px);
-      box-shadow: 1px 1px 0 var(--border);
+    .submit-btn:active:not(:disabled) {
+      transform: translateY(1px);
+      box-shadow: 0 1px 4px rgba(0,112,210,0.2);
     }
 
-    button[type="submit"]:disabled {
-      opacity: 0.5;
+    .submit-btn:disabled {
+      opacity: 0.55;
       cursor: not-allowed;
       box-shadow: none;
     }
 
-    /* Shimmer on loading button */
-    button.loading::after {
+    .submit-btn.loading::after {
       content: '';
       position: absolute;
       inset: 0;
-      background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.12) 50%, transparent 100%);
-      animation: shimmer 1.2s infinite;
+      background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.15) 50%, transparent 100%);
+      animation: shimmer 1.1s infinite;
     }
 
     @keyframes shimmer {
-      0% { transform: translateX(-100%); }
-      100% { transform: translateX(100%); }
+      from { transform: translateX(-100%); }
+      to   { transform: translateX(100%); }
     }
 
-    /* Success / Error states */
-    #success-msg {
+    /* ── Alert states ───────────────────────── */
+    .alert {
       display: none;
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      font-size: 0.85rem;
+      margin-top: 0.9rem;
+      font-weight: 500;
+    }
+
+    .alert.error   { background: var(--red-pale);  color: var(--red);  border: 1px solid #f5c6c2; display: block; }
+    .alert.warning { background: var(--warn-pale);  color: var(--warn); border: 1px solid #fde68a; display: block; }
+
+    /* ── Footer ─────────────────────────────── */
+    .card-footer {
+      border-top: 1px solid var(--border);
+      padding: 1rem 1.75rem;
+      font-size: 0.8rem;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .card-footer strong { color: var(--ink); }
+
+    /* ── Success screen ─────────────────────── */
+    #success-screen {
+      display: none;
+      padding: 3rem 2rem;
       text-align: center;
-      padding: 2rem 1rem;
     }
 
     .success-icon {
-      width: 56px; height: 56px;
+      width: 64px; height: 64px;
       border-radius: 50%;
-      background: var(--success-light);
+      background: var(--green-pale);
+      color: var(--green);
+      font-size: 1.75rem;
       display: flex;
       align-items: center;
       justify-content: center;
       margin: 0 auto 1.25rem;
-      font-size: 1.5rem;
+      border: 2px solid #a7e8cf;
     }
 
-    #success-msg h2 {
-      font-family: 'DM Serif Display', serif;
-      font-size: 1.5rem;
-      color: var(--success);
+    #success-screen h2 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--ink);
       margin-bottom: 0.5rem;
     }
 
-    #success-msg p {
-      font-size: 0.875rem;
+    #success-screen p {
+      font-size: 0.9rem;
       color: var(--muted);
+      max-width: 340px;
+      margin: 0 auto;
+      line-height: 1.6;
     }
 
-    #error-msg {
+    /* ── Invalid screen ─────────────────────── */
+    #invalid-screen {
       display: none;
-      margin-top: 1rem;
-      padding: 0.75rem 1rem;
-      border: 1.5px solid var(--accent);
-      background: var(--accent-light);
-      border-radius: 2px;
-      font-size: 0.8rem;
-      font-family: 'DM Mono', monospace;
-      color: var(--accent);
-    }
-
-    #invalid-msg {
+      padding: 3rem 2rem;
       text-align: center;
-      padding: 2rem 1rem;
     }
 
-    #invalid-msg .icon {
+    #invalid-screen .inv-icon {
       font-size: 2.5rem;
       margin-bottom: 1rem;
     }
 
-    #invalid-msg h2 {
-      font-family: 'DM Serif Display', serif;
-      font-size: 1.5rem;
-      color: var(--accent);
+    #invalid-screen h2 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--red);
       margin-bottom: 0.5rem;
     }
 
-    #invalid-msg p {
+    #invalid-screen p {
       font-size: 0.875rem;
       color: var(--muted);
     }
 
-    /* Entry animation */
-    .card {
-      animation: cardIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
-    }
-
-    @keyframes cardIn {
-      from { opacity: 0; transform: translateY(16px); }
-      to   { opacity: 1; transform: translateY(0); }
+    /* ── Responsive ─────────────────────────── */
+    @media (max-width: 480px) {
+      .vendor-strip    { grid-template-columns: 1fr; }
+      .fields-row      { grid-template-columns: 1fr; }
+      .header-band     { flex-direction: column; align-items: flex-start; }
     }
   </style>
 </head>
 <body>
 
-<div class="card">
+<div class="shell">
 
-  <!-- Invalid link state -->
-  <div id="invalid-msg" style="display:none;">
-    <div class="icon">⚠</div>
-    <h2>Invalid Link</h2>
-    <p>This link is missing a task ID. Please use the link provided in your email.</p>
+  <!-- Header band -->
+  <div class="header-band">
+    <span class="brand">Wrike Manufacturing — Vendor Quote</span>
+    <span class="quote-id-chip">
+      <span class="pulse"></span>
+      <span id="hdr-quote-id">Loading…</span>
+    </span>
   </div>
 
-  <!-- Main form -->
-  <div id="form-container">
-    <p class="eyebrow">Quote Submission</p>
-    <h1>Submit Your Quote</h1>
-    <p class="subtitle">Enter your price below and we'll update the task in Wrike automatically.</p>
+  <!-- Card -->
+  <div class="card">
 
-    <div class="divider"></div>
+    <!-- ── INVALID LINK ── -->
+    <div id="invalid-screen">
+      <div class="inv-icon">⚠</div>
+      <h2>Invalid Link</h2>
+      <p>This link is missing required information. Please use the link provided in your email.</p>
+    </div>
 
-    <form id="quote-form" novalidate>
-      <input type="hidden" id="task_id" name="task_id" />
+    <!-- ── MAIN CONTENT ── -->
+    <div id="main-content">
 
-      <div style="margin-bottom: 1.5rem;">
-        <label for="task-display">Task Reference</label>
-        <div class="task-badge">
-          <span class="dot"></span>
-          <span id="task-display">—</span>
+      <!-- Greeting -->
+      <div class="greeting">
+        <p>Hello <strong id="disp-contact">—</strong>,</p>
+        <p style="margin-top:0.5rem; font-size:0.9rem; color:var(--muted);">
+          Below are the items we are wishing to receive a quote for. Please review the details and submit your pricing using the form below.
+        </p>
+      </div>
+
+      <!-- Vendor meta -->
+      <div class="vendor-strip">
+        <div class="meta-item">
+          <span class="meta-label">Quote ID</span>
+          <span class="meta-value" id="disp-task-id">—</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Vendor</span>
+          <span class="meta-value" id="disp-vendor">—</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Email</span>
+          <span class="meta-value" id="disp-email" style="font-size:0.8rem;">—</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Phone</span>
+          <span class="meta-value" id="disp-phone">—</span>
         </div>
       </div>
 
-      <div>
-        <label for="quote_price">Quote Price</label>
-        <div class="input-wrap">
-          <span class="currency-symbol">$</span>
-          <input
-            type="number"
-            id="quote_price"
-            name="quote_price"
-            min="0"
-            step="0.01"
-            placeholder="0.00"
-            required
-          />
+      <!-- Items section -->
+      <p class="section-label">Items Requested</p>
+
+      <div class="item-list">
+        <div class="item-row">
+          <span class="row-label">Material</span>
+          <span class="row-value" id="disp-material">—</span>
+        </div>
+        <div class="item-row">
+          <span class="row-label">Quantity</span>
+          <span class="row-value">
+            <span class="qty-badge" id="disp-qty">—</span>
+          </span>
+        </div>
+        <div class="item-row" id="notes-row">
+          <span class="row-label">Notes</span>
+          <span class="row-value" id="disp-notes" style="color:var(--muted); font-weight:400;">—</span>
         </div>
       </div>
 
-      <div id="error-msg" role="alert"></div>
+      <!-- Submission form -->
+      <p class="section-label" style="margin-top:1.75rem;">Your Submission</p>
 
-      <button type="submit" id="submit-btn">
-        Submit Quote
-      </button>
-    </form>
-  </div>
+      <div class="form-area">
+        <form id="quote-form" novalidate>
+          <input type="hidden" id="f-task-id" />
 
-  <!-- Success state -->
-  <div id="success-msg" role="status">
-    <div class="success-icon">✓</div>
-    <h2>Quote Sent!</h2>
-    <p>Thank you — your quote has been sent to Wrike and the task has been updated.</p>
-  </div>
+          <div class="fields-row">
+            <div class="field-group">
+              <label class="field-label" for="f-price">Total Quote Price</label>
+              <div class="input-wrap">
+                <span class="currency">$</span>
+                <input type="number" id="f-price" min="0" step="0.01" placeholder="0.00" required />
+              </div>
+              <p class="field-hint">Include taxes, fees &amp; delivery</p>
+            </div>
 
-</div>
+            <div class="field-group">
+              <label class="field-label" for="f-date">Earliest Delivery Date</label>
+              <input type="date" id="f-date" required />
+              <p class="field-hint">Your earliest possible date</p>
+            </div>
+          </div>
+
+          <div id="error-alert" class="alert"></div>
+
+          <button type="submit" class="submit-btn" id="submit-btn">
+            Submit Quote Pricing
+          </button>
+        </form>
+      </div>
+
+      <!-- Footer -->
+      <div class="card-footer">
+        <span>Thank you, <strong>Wrike Manufacturing</strong></span>
+        <span style="font-family:'JetBrains Mono',monospace; font-size:0.7rem;">vendor-quote-form</span>
+      </div>
+
+    </div><!-- /main-content -->
+
+    <!-- ── SUCCESS ── -->
+    <div id="success-screen">
+      <div class="success-icon">✓</div>
+      <h2>Quote Submitted!</h2>
+      <p>Thank you — your quote has been sent to Wrike and the task has been updated. We will be in touch if we have questions.</p>
+    </div>
+
+  </div><!-- /card -->
+</div><!-- /shell -->
 
 <script>
-  // ─── Configuration ────────────────────────────────────────────────
-  const WORKATO_WEBHOOK_URL = 'https://webhooks.workato.com/webhooks/rest/066ed861-2567-4aac-b4c8-c4441549f3e9/vendor-quote';
-  // ──────────────────────────────────────────────────────────────────
+  // ── Config ────────────────────────────────────────────────────────
+  const WEBHOOK_URL = 'https://webhooks.workato.com/webhooks/rest/066ed861-2567-4aac-b4c8-c4441549f3e9/vendor-quote';
 
-  const params      = new URLSearchParams(window.location.search);
-  const taskId      = params.get('task_id');
+  // ── Parse URL params ──────────────────────────────────────────────
+  const p = new URLSearchParams(window.location.search);
 
-  const invalidMsg      = document.getElementById('invalid-msg');
-  const formContainer   = document.getElementById('form-container');
-  const taskIdField     = document.getElementById('task_id');
-  const taskDisplay     = document.getElementById('task-display');
-  const form            = document.getElementById('quote-form');
-  const submitBtn       = document.getElementById('submit-btn');
-  const errorMsg        = document.getElementById('error-msg');
-  const successMsg      = document.getElementById('success-msg');
+  const task_id        = p.get('task_id')        || '';
+  const vendor_name    = p.get('vendor_name')    || '';
+  const vendor_contact = p.get('vendor_contact') || '';
+  const vendor_email   = p.get('vendor_email')   || '';
+  const vendor_phone   = p.get('vendor_phone')   || '';
+  const material       = p.get('material')       || '';
+  const quantity       = p.get('quantity')       || '';
+  const notes          = p.get('notes')          || '';
 
-  // ─── Validate task_id on load ─────────────────────────────────────
-  if (!taskId || taskId.trim() === '') {
-    formContainer.style.display = 'none';
-    invalidMsg.style.display    = 'block';
+  // ── Refs ──────────────────────────────────────────────────────────
+  const mainContent   = document.getElementById('main-content');
+  const invalidScreen = document.getElementById('invalid-screen');
+  const successScreen = document.getElementById('success-screen');
+  const errorAlert    = document.getElementById('error-alert');
+  const submitBtn     = document.getElementById('submit-btn');
+  const form          = document.getElementById('quote-form');
+
+  // ── Validate required params ──────────────────────────────────────
+  if (!task_id) {
+    mainContent.style.display   = 'none';
+    invalidScreen.style.display = 'block';
   } else {
-    taskIdField.value   = taskId;
-    taskDisplay.textContent = taskId;
-  }
+    // Populate header
+    document.getElementById('hdr-quote-id').textContent = task_id;
 
-  // ─── Form submission ──────────────────────────────────────────────
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
+    // Populate vendor meta
+    document.getElementById('disp-task-id').textContent = task_id;
+    document.getElementById('disp-vendor').textContent  = vendor_name   || '—';
+    document.getElementById('disp-contact').textContent = vendor_contact || vendor_name || '—';
+    document.getElementById('disp-email').textContent   = vendor_email  || '—';
+    document.getElementById('disp-phone').textContent   = vendor_phone  || '—';
 
-    const price = parseFloat(document.getElementById('quote_price').value);
+    // Populate items
+    document.getElementById('disp-material').textContent = material || '—';
+    document.getElementById('disp-qty').textContent      = quantity  || '—';
 
-    // Basic validation
-    if (isNaN(price) || price < 0) {
-      showError('Please enter a valid quote price.');
-      return;
+    const notesEl = document.getElementById('disp-notes');
+    if (notes) {
+      notesEl.textContent = notes;
+      notesEl.style.color = '';
+    } else {
+      document.getElementById('notes-row').style.display = 'none';
     }
 
+    // Set hidden field
+    document.getElementById('f-task-id').value = task_id;
+
+    // Min date = today
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('f-date').min = today;
+  }
+
+  // ── Form submit ───────────────────────────────────────────────────
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
     hideError();
+
+    const price = parseFloat(document.getElementById('f-price').value);
+    const date  = document.getElementById('f-date').value;
+
+    if (isNaN(price) || price < 0) {
+      return showError('Please enter a valid quote price.');
+    }
+    if (!date) {
+      return showError('Please select an earliest delivery date.');
+    }
+
     setLoading(true);
 
     const payload = {
-      task_id:     taskId,
-      quote_price: price,
+      task_id,
+      vendor_name,
+      vendor_contact,
+      vendor_email,
+      vendor_phone,
+      material,
+      quantity,
+      notes,
+      quote_price:       price,
+      delivery_date:     date,
     };
 
     try {
-      const response = await fetch(WORKATO_WEBHOOK_URL, {
+      const res = await fetch(WEBHOOK_URL, {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
         body:    JSON.stringify(payload),
       });
 
-      if (!response.ok) {
-        throw new Error(`Server responded with status ${response.status}`);
-      }
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
-      // Success
-      formContainer.style.display = 'none';
-      successMsg.style.display    = 'block';
+      mainContent.style.display   = 'none';
+      successScreen.style.display = 'block';
 
     } catch (err) {
-      showError('Something went wrong. Please try again or contact support.');
-      console.error('Submission error:', err);
+      showError('Something went wrong submitting your quote. Please try again or contact us directly.');
+      console.error(err);
     } finally {
       setLoading(false);
     }
   });
 
-  // ─── Helpers ──────────────────────────────────────────────────────
-  function setLoading(isLoading) {
-    submitBtn.disabled = isLoading;
-    if (isLoading) {
-      submitBtn.textContent = 'Submitting…';
-      submitBtn.classList.add('loading');
-    } else {
-      submitBtn.textContent = 'Submit Quote';
-      submitBtn.classList.remove('loading');
-    }
+  // ── Helpers ───────────────────────────────────────────────────────
+  function setLoading(on) {
+    submitBtn.disabled    = on;
+    submitBtn.textContent = on ? 'Submitting…' : 'Submit Quote Pricing';
+    submitBtn.classList.toggle('loading', on);
   }
 
   function showError(msg) {
-    errorMsg.textContent    = msg;
-    errorMsg.style.display  = 'block';
+    errorAlert.textContent = msg;
+    errorAlert.className   = 'alert error';
   }
 
   function hideError() {
-    errorMsg.textContent    = '';
-    errorMsg.style.display  = 'none';
+    errorAlert.textContent = '';
+    errorAlert.className   = 'alert';
   }
 </script>
 
